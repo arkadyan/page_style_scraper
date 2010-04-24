@@ -46,8 +46,12 @@ class	Page
 	def scrape_logo
 		# Find the first image with 'logo' in the filename
 		@doc.css('img').each do |image|
-			if !@properties[:logo] && image['src'].downcase.include?('logo')
-				@properties[:logo] = image['src']
+			lowercase_image_src = image['src'].downcase
+			if !@properties[:logo] && lowercase_image_src.include?('logo')
+				# Exclude the Constant Contact SafeSubscribe logo from the results
+				if !lowercase_image_src.include?('safe_subscribe_logo')
+					@properties[:logo] = image['src']
+				end
 			end
 		end
 	end
