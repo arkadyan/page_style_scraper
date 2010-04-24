@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
+require 'css_parser'
 
 
 class	Page
@@ -9,13 +10,12 @@ class	Page
 	
 	
 	def initialize(url)
-		# Make sure we were passed a URL
-		if !url
-			raise "A URL is required to initialize a Page object"
-		end
-		
 		# Get a Nokogiri::HTML:Document for the page we’re interested in...
 		@doc = Nokogiri::HTML(open(url))
+		
+		# Get a CSS Parser for in-page css rules
+		# @in_page_css_parser = CssParser::Parser.new
+		# @in_page_css_parser.load_uri!(url)
 		
 		# Set up page properties
 		@properties = {
@@ -26,9 +26,9 @@ class	Page
 			:primary_color => nil,
 			:secondary_color => nil,
 			:other_colors => [],
-			:primary_font => nil,
-			:heading_font => nil,
-			:other_fonts => []
+			:primary_font_family => nil,
+			:heading_font_family => nil,
+			:other_font_families => []
 		}
 		
 		scrape_all_properties
@@ -40,7 +40,7 @@ class	Page
 	def scrape_all_properties
 		scrape_logo
 		# scrape_primary_bg_color
-		
+		scrape_primary_font_family
 	end
 	
 	def scrape_logo
@@ -50,6 +50,11 @@ class	Page
 				@properties[:logo] = image['src']
 			end
 		end
+	end
+	
+	def scrape_primary_font_family
+		# Find the font-family defined on p tags
+		# puts "p selector :: " +  @in_page_css_parser.find_by_selector('p').to_s
 	end
 	
 end
