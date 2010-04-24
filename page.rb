@@ -19,7 +19,16 @@ class	Page
 		
 		# Set up page properties
 		@properties = {
-			:logo => []
+			:logo => nil,
+			:primary_bg_color => nil,
+			:secondary_bg_color => nil,
+			:other_bg_colors => [],
+			:primary_color => nil,
+			:secondary_color => nil,
+			:other_colors => [],
+			:primary_font => nil,
+			:heading_font => nil,
+			:other_fonts => []
 		}
 		
 		scrape_all_properties
@@ -35,10 +44,10 @@ class	Page
 	end
 	
 	def scrape_logo
-		# Find images with 'logo' in the filename
+		# Find the first image with 'logo' in the filename
 		@doc.css('img').each do |image|
-			if image['src'].downcase.include?('logo')
-				@properties[:logo] << image['src']
+			if !@properties[:logo] && image['src'].downcase.include?('logo')
+				@properties[:logo] = image['src']
 			end
 		end
 	end
