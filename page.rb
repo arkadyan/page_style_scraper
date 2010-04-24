@@ -17,6 +17,9 @@ class	Page
 		# @in_page_css_parser = CssParser::Parser.new
 		# @in_page_css_parser.load_uri!(url)
 		
+		@external_css_files = extract_external_css_files
+		puts "@external_css_files = #{@external_css_files}"
+		
 		# Set up page properties
 		@properties = {
 			:logo => nil,
@@ -36,6 +39,16 @@ class	Page
 	
 	
 	private
+	
+	def extract_external_css_files
+		external_css_files = []
+		@doc.css('link').each do |link|
+			if link['type'] && link['type'].eql?("text/css")
+				external_css_files << link['href']
+			end
+		end
+		external_css_files
+	end
 	
 	def scrape_all_properties
 		scrape_logo
