@@ -39,7 +39,8 @@ class	Page
 			:other_colors => [],
 			:primary_font_family => nil,
 			:heading_font_family => nil,
-			:other_font_families => []
+			:other_font_families => [],
+			:primary_font_size => nil
 		}
 		
 		scrape_all_properties
@@ -72,6 +73,7 @@ class	Page
 		scrape_logo
 		scrape_primary_bg_color
 		scrape_primary_font_family
+		scrape_primary_font_size
 	end
 	
 	def scrape_logo
@@ -113,6 +115,22 @@ class	Page
 					match_data = selector.match('font-family:\s*(.*?);')
 					if !@properties[:primary_font_family] && match_data
 						@properties[:primary_font_family] = match_data[1]
+					end
+				end
+			end
+		end
+	end
+	
+	def scrape_primary_font_size
+		# Search all external css files for the first font-size
+		# set on the body element
+		@external_css_parsers.each do |parser|
+			body_selectors = parser.find_by_selector('body')
+			if body_selectors.length > 0
+				body_selectors.each do |selector|
+					match_data = selector.match('font-size:\s*(.*?);')
+					if !@properties[:primary_font_size] && match_data
+						@properties[:primary_font_size] = match_data[1]
 					end
 				end
 			end
