@@ -1,6 +1,7 @@
 require 'page'
 
 
+puts
 page = Page.new('http://www.tridentbookscafe.com/')
 puts "Page: http://www.tridentbookscafe.com/"
 puts "================================"

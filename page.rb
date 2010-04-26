@@ -90,13 +90,13 @@ class	Page
 	def scrape_primary_bg_color
 		# Search all external css files for the first background-color 
 		# set on the body element
-		bg_color = nil
 		@external_css_parsers.each do |parser|
 			body_selectors = parser.find_by_selector('body')
 			if body_selectors.length > 0
 				body_selectors.each do |selector|
-					if !@properties[:primary_bg_color] && selector.match('background-color:\s*(.*);')
-						@properties[:primary_bg_color] = selector.match('background-color:\s*(.*);')[1]
+					match_data = selector.match('background-color:\s*(.*?);')
+					if !@properties[:primary_bg_color] && match_data
+						@properties[:primary_bg_color] = match_data[1]
 					end
 				end
 			end
@@ -104,8 +104,19 @@ class	Page
 	end
 	
 	def scrape_primary_font_family
-		# Find the font-family defined on p tags
-		# puts "p selector :: " +  @in_page_css_parser.find_by_selector('p').to_s
+		# Search all external css files for the first font-family
+		# set on the body element
+		@external_css_parsers.each do |parser|
+			body_selectors = parser.find_by_selector('body')
+			if body_selectors.length > 0
+				body_selectors.each do |selector|
+					match_data = selector.match('font-family:\s*(.*?);')
+					if !@properties[:primary_font_family] && match_data
+						@properties[:primary_font_family] = match_data[1]
+					end
+				end
+			end
+		end
 	end
 	
 end
