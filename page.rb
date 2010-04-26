@@ -17,8 +17,16 @@ class	Page
 		# @in_page_css_parser = CssParser::Parser.new
 		# @in_page_css_parser.load_uri!(url)
 		
-		@external_css_files = extract_external_css_files
-		puts "@external_css_files = #{@external_css_files}"
+		# Find all external css files
+		external_css_files = extract_external_css_files
+		
+		# Create parsers for each external css file
+		@external_css_parsers = []
+		external_css_files.each do |external_css_file|
+			parser = CssParser::Parser.new
+			parser.load_uri!(full_url(external_css_file, url))
+			@external_css_parsers << parser
+		end
 		
 		# Set up page properties
 		@properties = {
@@ -50,9 +58,19 @@ class	Page
 		external_css_files
 	end
 	
+	def full_url(path, original_url)
+		full_url = path
+		# If the path doesn't begin with 'http://' or 'https://',
+		# append the base url from the original url
+		if !full_url.match('^https?://')
+			full_url = original_url.match('^.*/').to_s + full_url
+		end
+		full_url
+	end
+	
 	def scrape_all_properties
 		scrape_logo
-		# scrape_primary_bg_color
+		scrape_primary_bg_color
 		scrape_primary_font_family
 	end
 	
@@ -64,6 +82,22 @@ class	Page
 				# Exclude the Constant Contact SafeSubscribe logo from the results
 				if !lowercase_image_src.include?('safe_subscribe_logo')
 					@properties[:logo] = image['src']
+				end
+			end
+		end
+	end
+	
+	def scrape_primary_bg_color
+		# Search all external css files for the first background-color 
+		# set on the body element
+		bg_color = nil
+		@external_css_parsers.each do |parser|
+			body_selectors = parser.find_by_selector('body')
+			if body_selectors.length > 0
+				body_selectors.each do |selector|
+					if !@properties[:primary_bg_color] && selector.match('background-color:\s*(.*);')
+						@properties[:primary_bg_color] = selector.match('background-color:\s*(.*);')[1]
+					end
 				end
 			end
 		end
